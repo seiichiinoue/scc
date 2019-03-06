@@ -1,4 +1,4 @@
-9cc: scc.c
+scc: scc.c
 
 test: scc
 	./test.sh
