@@ -1,8 +1,8 @@
-9cc: 9cc.c
+9cc: scc.c
 
-test: 9cc
+test: scc
 	./test.sh
 
 clean:
-	rm -f 9cc *.o *~ tmp*
+	rm -f scc *.o *~ tmp*
 
