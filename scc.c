@@ -2,27 +2,97 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
+#include <stdarg.h>
+
+// トークナイザ
 
 // トークンの型を表す値
-enum {
-  TK_NUM = 256, // 整数トークン
+typedef enum {
+  TK_RESERVED,  // 記号
+  TK_NUM, // 整数トークン
   TK_EOF,       // 入力の終わりを表すトークン
-};
+} TokenKind;
+
+typedef struct Token Token;
 
 // トークンの型
-typedef struct {
-  int ty;      // トークンの型
-  int val;     // tyがTK_NUMの場合、その数値
-  char *input; // トークン文字列（エラーメッセージ用）
-} Token;
+struct Token {
+  TokenKind kind;
+  Token *next;
+  int val;     // kindがTK_NUMの場合、その数値
+  char *str;   // トークン文字列
+};
 
-// トークナイズした結果のトークン列はこの配列に保存する
-// 100個以上のトークンは来ないものとする
-Token tokens[100];
+// 現在着目しているトークン
+Token *token;
 
-// pが指している文字列をトークンに分割してtokensに保存する
-void tokenize(char *p) {
-  int i = 0;
+// エラー報告関数
+void error(char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
+
+// 入力プログラム
+char *user_input;
+
+// 改良版エラー関数
+void error_at(char *loc, char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+
+  int pos = loc - user_input;
+  fprintf(stderr, "%s\n", user_input);
+  fprintf(stderr, "%*s", pos, ""); // pos個の空白を出力
+  fprintf(stderr, "^ ");
+  vfprintf(stderr, fmt, ap);
+  fprintf(stderr, "\n");
+  exit(1);
+}
+
+bool consume(char op) {
+  if (token->kind != TK_RESERVED || token->str[0] != op)
+    return false;
+  token = token->next;
+  return true;
+}
+
+void expect(char op) {
+  if (token->kind != TK_RESERVED || token->str[0] != op)
+    error_at(token->str, "expected '%c'", op);
+  token = token->next;
+}
+
+int expect_number() {
+  if (token->kind != TK_NUM)
+    error_at(token->str, "expected a number");
+  int val = token->val;
+  token = token->next;
+  return val;
+}
+
+bool at_eof() {
+  return token->kind == TK_EOF;
+}
+
+// 新しいトークンを作成してcurに繋げる
+Token *new_token(TokenKind kind, Token *cur, char *str) {
+  Token *tok = calloc(1, sizeof(Token));
+  tok->kind = kind;
+  tok->str = str;
+  cur->next = tok;
+  return tok;
+}
+
+// トークナイズ
+Token *tokenize(char *p) {
+  Token head;
+  head.next = NULL;
+  Token *cur = &head;
+
   while (*p) {
     // 空白文字をスキップ
     if (isspace(*p)) {
@@ -30,82 +100,163 @@ void tokenize(char *p) {
       continue;
     }
 
-    if (*p == '+' || *p == '-') {
-      tokens[i].ty = *p;
-      tokens[i].input = p;
-      i++;
-      p++;
+    if (strchr("+-*/()", *p)) {
+      cur = new_token(TK_RESERVED, cur, p++);
       continue;
     }
 
     if (isdigit(*p)) {
-      tokens[i].ty = TK_NUM;
-      tokens[i].input = p;
-      tokens[i].val = strtol(p, &p, 10);
-      i++;
+      cur = new_token(TK_NUM, cur, p);
+      cur->val = strtol(p, &p, 10);
       continue;
     }
-
-    fprintf(stderr, "トークナイズできません: %s\n", p);
-    exit(1);
+    error_at(p, "invalid token");
   }
-
-  tokens[i].ty = TK_EOF;
-  tokens[i].input = p;
+  new_token(TK_EOF, cur, p);
+  return head.next;
 }
 
-// エラーを報告するための関数
-void error(int i) {
-  fprintf(stderr, "予期しないトークンです: %s\n",
-          tokens[i].input);
-  exit(1);
+
+// 構文解析
+
+typedef enum {
+  ND_ADD,
+  ND_SUB,
+  ND_MUL,
+  ND_DIV,
+  ND_NUM,
+} NodeKind;
+
+typedef struct Node Node;
+
+struct Node {
+  NodeKind kind;
+  Node *lhs;
+  Node *rhs;
+  int val; //kindがND_NUMの場合
+};
+
+// ノードを作成する関数
+Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = kind;
+  node->lhs = lhs;
+  node->rhs = rhs;
+  return node;
+}
+
+Node *new_node_num(int val) {
+  Node *node = calloc(1, sizeof(Node));
+  node->kind = ND_NUM;
+  node->val = val;
+  return node;
+}
+
+// パーサの定義
+Node *expr();
+Node *mul();
+Node *unary();
+Node *primary();
+
+Node *expr() {
+  Node *node = mul();
+
+  for (;;) {
+    if (consume('+'))
+      node = new_node(ND_ADD, node, mul());
+    else if (consume('-'))
+      node = new_node(ND_SUB, node, mul());
+    else
+      return node;
+  }
+}
+
+Node *mul() {
+  Node *node = unary();
+
+  for (;;) {
+    if (consume('*'))
+      node = new_node(ND_MUL, node, unary());
+    else if (consume('/'))
+      node = new_node(ND_DIV, node, unary());
+    else
+      return node;
+  }
+}
+
+Node *unary() {
+  if (consume('+'))
+    return unary();
+  if (consume('-'))
+    return new_node(ND_SUB, new_node_num(0), unary());
+  return primary();
+}
+
+Node *primary() {
+  // 次のトークンが"("なら、"(" expr ")"のはず
+  if (consume('(')) {
+    Node *node = expr();
+    expect(')');
+    return node;
+  }
+
+  // そうでなければ数値のはず
+  return new_node_num(expect_number());
+}
+
+// アセンブリ出力
+
+void gen(Node *node) {
+  if (node->kind == ND_NUM) {
+    printf("  push %d\n", node->val);
+    return;
+  }
+
+  gen(node->lhs);
+  gen(node->rhs);
+
+  printf("  pop rdi\n");
+  printf("  pop rax\n");
+
+  switch (node->kind) {
+  case ND_ADD:
+    printf("  add rax, rdi\n");
+    break;
+  case ND_SUB:
+    printf("  sub rax, rdi\n");
+    break;
+  case ND_MUL:
+    printf("  imul rax, rdi\n");
+    break;
+  case ND_DIV:
+    printf("  cqo\n");
+    printf("  idiv rdi\n");
+    break;
+  }
+
+  printf("  push rax\n");
 }
 
 int main(int argc, char **argv) {
-  if (argc != 2) {
-    fprintf(stderr, "引数の個数が正しくありません\n");
-    return 1;
-  }
+  if (argc != 2)
+    error("%s: invalid number of arguments", argv[0]);
+
+  // argv[1]をinputに保存
+  user_input = argv[1];
 
   // トークナイズする
-  tokenize(argv[1]);
+  token = tokenize(user_input);
+  Node *node = expr();
 
   // アセンブリの前半部分を出力
   printf(".intel_syntax noprefix\n");
   printf(".global main\n");
   printf("main:\n");
 
-  // 式の最初は数でなければならないので、それをチェックして
-  // 最初のmov命令を出力
-  if (tokens[0].ty != TK_NUM)
-    error(0);
-  printf("  mov rax, %d\n", tokens[0].val);
+  // 構文木を下りながらコードを生成
+  gen(node);
 
-  // `+ <数>`あるいは`- <数>`というトークンの並びを消費しつつ
-  // アセンブリを出力
-  int i = 1;
-  while (tokens[i].ty != TK_EOF) {
-    if (tokens[i].ty == '+') {
-      i++;
-      if (tokens[i].ty != TK_NUM)
-        error(i);
-      printf("  add rax, %d\n", tokens[i].val);
-      i++;
-      continue;
-    }
-
-    if (tokens[i].ty == '-') {
-      i++;
-      if (tokens[i].ty != TK_NUM)
-        error(i);
-      printf("  sub rax, %d\n", tokens[i].val);
-      i++;
-      continue;
-    }
-
-    error(i);
-  }
-
+  printf("  pop rax\n");
   printf("  ret\n");
   return 0;
 }
