@@ -3,7 +3,7 @@
 char *user_input;
 Token *token;
 
-// エラー報告関数
+// error func
 void error(char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
@@ -12,14 +12,14 @@ void error(char *fmt, ...) {
   exit(1);
 }
 
-// 改良版エラー関数
+// error func beta
 void error_at(char *loc, char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
 
   int pos = loc - user_input;
   fprintf(stderr, "%s\n", user_input);
-  fprintf(stderr, "%*s", pos, ""); // pos個の空白を出力
+  fprintf(stderr, "%*s", pos, "");
   fprintf(stderr, "^ ");
   vfprintf(stderr, fmt, ap);
   fprintf(stderr, "\n");
@@ -74,7 +74,7 @@ Token *tokenize(char *p) {
   Token *cur = &head;
 
   while (*p) {
-    // 空白文字をスキップ
+    // skip space
     if (isspace(*p)) {
       p++;
       continue;
