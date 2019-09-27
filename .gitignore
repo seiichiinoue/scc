@@ -1,5 +1,16 @@
-*~
-*.o
-*.out
-tmp*
-scc
+# *~
+# *.o
+# *.out
+# tmp*
+# scc
+
+# ignore all
+*
+
+# allow any
+!.gitignore
+!README.md
+!*.c
+!*.h
+!test.sh
+!makefile
