@@ -88,13 +88,10 @@ Node *unary() {
 }
 
 Node *primary() {
-  // 次のトークンが"("なら、"(" expr ")"のはず
   if (consume("(")) {
     Node *node = expr();
     expect(")");
     return node;
   }
-
-  // そうでなければ数値のはず
   return new_num(expect_number());
 }
