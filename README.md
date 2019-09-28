@@ -10,7 +10,7 @@
 
 ## Development Progress
 
-- Completed Compiler can do ==, !=, <= and >= operators - 2019.8.30
+- Add ==, !=, <= and >= operators - 2019.8.30
 
 - Support single-letter local variables - 2019.9.27
 
