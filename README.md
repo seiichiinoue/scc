@@ -12,7 +12,9 @@
 
 - Completed Parser - 2019.8.30
 
-- Accept multiple statements separated by semicolons - 2019.9.28
+- Support single-letter local variables - 2019.9.27
+
+- Support multi-letter local variables - 2019.9.29
 
 ## Environment 
 
@@ -32,7 +34,7 @@ $ sudo apt install gcc make binutils libc6-dev
 execute `scc`(compiler) and write assembly lang to `tmp.s`.
 
 ```bash
-$ ./scc 'a=3; z=5; return a+z;' > tmp.s
+$ ./scc 'foo123=3; bar=5; return foo123+bar;' > tmp.s
 ```
 
 look outed assembly lang.
@@ -44,8 +46,8 @@ $ cat tmp.s
 main:
   push rbp
   mov rbp, rsp
-  sub rsp, 208
-  lea rax, [rbp-8]
+  sub rsp, 16
+  lea rax, [rbp-16]
   push rax
   push 3
   pop rdi
@@ -53,7 +55,7 @@ main:
   mov [rax], rdi
   push rdi
   add rsp, 8
-  lea rax, [rbp-208]
+  lea rax, [rbp-8]
   push rax
   push 5
   pop rdi
@@ -61,12 +63,12 @@ main:
   mov [rax], rdi
   push rdi
   add rsp, 8
-  lea rax, [rbp-8]
+  lea rax, [rbp-16]
   push rax
   pop rax
   mov rax, [rax]
   push rax
-  lea rax, [rbp-208]
+  lea rax, [rbp-8]
   push rax
   pop rax
   mov rax, [rax]
