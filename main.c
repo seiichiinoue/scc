@@ -4,20 +4,12 @@ int main(int argc, char **argv) {
   if (argc != 2)
     error("%s: invalid number of arguments", argv[0]);
 
+  // Tokenize and parse.
   user_input = argv[1];
+  token = tokenize();
+  Node *node = program();
 
-  // Tokenize
-  token = tokenize(user_input);
-  Node *node = expr();
-
-  printf(".intel_syntax noprefix\n");
-  printf(".global main\n");
-  printf("main:\n");
-
-  // generate assembly code
-  gen(node);
-
-  printf("  pop rax\n");
-  printf("  ret\n");
+  // Traverse the AST to emit assembly.
+  codegen(node);
   return 0;
 }
