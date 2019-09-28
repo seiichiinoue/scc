@@ -32,7 +32,7 @@ $ sudo apt install gcc make binutils libc6-dev
 execute `scc`(compiler) and write assembly lang to `tmp.s`.
 
 ```bash
-$ ./scc '4 * (15 + 3) / 2 - 10' > tmp.s
+$ ./scc 'a=3; z=5; return a+z;' > tmp.s
 ```
 
 look outed assembly lang.
