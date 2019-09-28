@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -5,9 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-//
-// tokenize.c
-//
+/* tokenize.c */
 
 typedef enum {
   TK_RESERVED, // Keywords or punctuators
@@ -38,9 +37,14 @@ Token *tokenize(void);
 extern char *user_input;
 extern Token *token;
 
-//
-// parse.c
-//
+/* parse.c */
+
+typedef struct Var Var;
+struct Var {
+  Var *next;
+  char *name; // variable name
+  int offset; // offset from rbp
+};
 
 typedef enum {
   ND_ADD,       // +
@@ -65,14 +69,20 @@ struct Node {
   Node *next;    // Next node
   Node *lhs;     // Left-hand side
   Node *rhs;     // Right-hand side
-  char name;     // Used if kind == ND_VAR
+  Var *var;      // Used if kind == ND_VAR
   long val;      // Used if kind == ND_NUM
 };
 
-Node *program(void);
+typedef struct Function Function;
+struct Function{
+  Node *node;
+  Var *locals;
+  int stack_size;
+};
 
-//
-// codegen.c
-//
+Function *program(void);
 
-void codegen(Node *node);
+
+/* codegen.c */
+
+void codegen(Function *prog);
