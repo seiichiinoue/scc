@@ -12,6 +12,8 @@
 
 - Completed Parser - 2019.8.30
 
+- Accept multiple statements separated by semicolons - 2019.9.28
+
 ## Environment 
 
 - 64-bit Linux
