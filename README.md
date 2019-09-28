@@ -27,13 +27,12 @@ $ sudo apt install gcc make binutils libc6-dev
 
 ## Experiment
 
-- Compile Four arithmetic operations
+- Compile Simple Code
 
 execute `scc`(compiler) and write assembly lang to `tmp.s`.
 
 ```bash
 $ ./scc '4 * (15 + 3) / 2 - 10' > tmp.s
-$ gcc -o tmp tmp.s 
 ```
 
 look outed assembly lang.
@@ -43,29 +42,44 @@ $ cat tmp.s
 .intel_syntax noprefix
 .global main
 main:
-  push 4
-  push 15
+  push rbp
+  mov rbp, rsp
+  sub rsp, 208
+  lea rax, [rbp-8]
+  push rax
   push 3
+  pop rdi
+  pop rax
+  mov [rax], rdi
+  push rdi
+  add rsp, 8
+  lea rax, [rbp-208]
+  push rax
+  push 5
+  pop rdi
+  pop rax
+  mov [rax], rdi
+  push rdi
+  add rsp, 8
+  lea rax, [rbp-8]
+  push rax
+  pop rax
+  mov rax, [rax]
+  push rax
+  lea rax, [rbp-208]
+  push rax
+  pop rax
+  mov rax, [rax]
+  push rax
   pop rdi
   pop rax
   add rax, rdi
   push rax
-  pop rdi
   pop rax
-  imul rax, rdi
-  push rax
-  push 2
-  pop rdi
-  pop rax
-  cqo
-  idiv rdi
-  push rax
-  push 10
-  pop rdi
-  pop rax
-  sub rax, rdi
-  push rax
-  pop rax
+  jmp .L.return
+.L.return:
+  mov rsp, rbp
+  pop rbp
   ret
 ```
 
@@ -75,5 +89,5 @@ compile `tmp.s` with gcc, and show result.
 $ gcc -o tmp tmp.s
 $ ./tmp
 $ echo $?
-26
+8
 ```
