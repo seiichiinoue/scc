@@ -34,6 +34,7 @@ $ sudo apt install gcc make binutils libc6-dev
 execute `scc`(compiler) and write assembly lang to `tmp.s`.
 
 ```bash
+$ make
 $ ./scc 'foo123=3; bar=5; return foo123+bar;' > tmp.s
 ```
 
