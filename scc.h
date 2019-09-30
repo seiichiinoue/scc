@@ -47,30 +47,38 @@ struct Var {
 };
 
 typedef enum {
-    ND_ADD,       // +
-    ND_SUB,       // -
-    ND_MUL,       // *
-    ND_DIV,       // /
-    ND_EQ,        // ==
-    ND_NE,        // !=
-    ND_LT,        // <
-    ND_LE,        // <=
-    ND_ASSIGN,    // =
-    ND_RETURN,    // "return"
-    ND_EXPR_STMT, // Expression statement
-    ND_VAR,       // Variable
-    ND_NUM,       // Integer
+    ND_ADD,         // +
+    ND_SUB,         // -
+    ND_MUL,         // *
+    ND_DIV,         // /
+    ND_EQ,          // ==
+    ND_NE,          // !=
+    ND_LT,          // <
+    ND_LE,          // <=
+    ND_ASSIGN,      // =
+    ND_RETURN,      // "return"
+    ND_IF,          // "if"
+    ND_EXPR_STMT,   // Expression statement
+    ND_VAR,         // Variable
+    ND_NUM,         // Integer
 } NodeKind;
 
 // AST node type
 typedef struct Node Node;
 struct Node {
-    NodeKind kind; // Node kind
-    Node *next;    // Next node
-    Node *lhs;     // Left-hand side
-    Node *rhs;     // Right-hand side
-    Var *var;      // Used if kind == ND_VAR
-    long val;      // Used if kind == ND_NUM
+    NodeKind kind;  // Node kind
+    Node *next;     // Next node
+
+    Node *lhs;      // Left-hand side
+    Node *rhs;      // Right-hand side
+    
+    // if statement
+    Node *cond;
+    Node *then;
+    Node *els;
+
+    Var *var;       // Used if kind == ND_VAR
+    long val;       // Used if kind == ND_NUM
 };
 
 typedef struct Function Function;
