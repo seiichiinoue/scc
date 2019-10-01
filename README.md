@@ -16,6 +16,8 @@
 
 - Support multi-letter local variables - 2019.9.29
 
+- Added nest, `if`, `while` and `if` statement - 2019.9.30
+
 ## Environment 
 
 - 64-bit Linux
