@@ -48,3 +48,19 @@ $ ./tmp
 $ echo $?
 8
 ```
+
+- Compile `while` statement
+
+```bash
+$ make
+$ ./scc 'i=0; j=0; while(i<=10) {j=i+j; i=i+1;} return j;' > tmp.s
+```
+
+compile `tmp.s` with gcc, and show result.
+
+```bash
+$ gcc -o tmp tmp.s
+$ ./tmp
+$ echo $?
+55
+```
