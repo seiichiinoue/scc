@@ -20,6 +20,8 @@
 
 - Added function call - 2019.10.2
 
+- Support param-less function definition - 2019.10.3
+
 ## Environment 
 
 - 64-bit Linux
