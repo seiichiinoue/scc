@@ -18,6 +18,8 @@
 
 - Added nest, `if`, `while` and `for` statement - 2019.9.30
 
+- Added function call - 2019.10.2
+
 ## Environment 
 
 - 64-bit Linux
