@@ -1,4 +1,7 @@
 #include "scc.h"
+
+/* tokenizer */
+
 char *user_input;
 Token *token;
 
