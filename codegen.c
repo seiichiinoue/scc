@@ -1,7 +1,9 @@
 #include "scc.h"
 
-static int labelseq = 1;
 static char *argreg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
+static int labelseq = 1;
+static char *funcname;
 
 // Pushes the given node's address to the stack.
 static void gen_addr(Node *node) {
@@ -112,7 +114,7 @@ static void gen(Node *node) {
 
         for (int i = nargs - 1; i >= 0; i--)
             printf("  pop %s\n", argreg[i]);
-
+        
         // we need to align RSP to a 16 byte boundary before
         // calling a function because it is an ABI requirement
         // RAX is set to 0 for variadic function
@@ -135,7 +137,7 @@ static void gen(Node *node) {
     case ND_RETURN:
         gen(node->lhs);
         printf("  pop rax\n");
-        printf("  jmp .L.return\n");
+        printf("  jmp .L.return.%s\n", funcname);
         return;
     }
 
@@ -186,19 +188,25 @@ static void gen(Node *node) {
 
 void codegen(Function *prog) {
     printf(".intel_syntax noprefix\n");
-    printf(".global main\n");
-    printf("main:\n");
 
-    // Prologue
-    printf("  push rbp\n");
-    printf("  mov rbp, rsp\n");
-    printf("  sub rsp, %d\n", prog->stack_size);
-    for (Node *node = prog->node; node; node = node->next)
-        gen(node);
+    for (Function *fn = prog; fn; fn = fn->next) {
+        printf(".global %s\n", fn->name);
+        printf("%s:\n", fn->name);
+        funcname = fn->name;
 
-    // Epilogue
-    printf(".L.return:\n");
-    printf("  mov rsp, rbp\n");
-    printf("  pop rbp\n");
-    printf("  ret\n");
+        // prologue
+        printf("  push rbp\n");
+        printf("  mov rbp, rsp\n");
+        printf("  sub rsp, %d\n", fn->stack_size);
+
+        // emit code
+        for (Node *node = fn->node; node; node = node->next)
+            gen(node);
+
+        // epilogue
+        printf(".L.return.%s:\n", funcname);
+        printf("  mov rsp, rbp\n");
+        printf("  pop rbp\n");
+        printf("  ret\n");
+    }
 }

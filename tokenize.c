@@ -1,7 +1,5 @@
 #include "scc.h"
 
-/* tokenizer */
-
 char *user_input;
 Token *token;
 
@@ -61,6 +59,14 @@ long expect_number(void) {
     long val = token->val;
     token = token->next;
     return val;
+}
+
+char *expect_ident(void) {
+    if (token->kind != TK_IDENT)
+        error_at(token->str, "expected an identifier");
+    char *s = strndup(token->str, token->len);
+    token = token->next;
+    return s;
 }
 
 bool at_eof(void) {
