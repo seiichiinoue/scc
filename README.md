@@ -68,3 +68,19 @@ $ ./tmp
 $ echo $?
 55
 ```
+
+- Compile short code calculate fibonacci num
+
+```bash
+$ make
+$ ./scc 'main() { return fib(9); } fib(x) { if (x<=1) return 1; return fib(x-1) + fib(x-2); }' > tmp.s
+```
+
+compile `tmp.s` with gcc, and show result.
+
+```bash
+$ gcc -o tmp tmp.s
+$ ./tmp
+$ echo $?
+55
+```
