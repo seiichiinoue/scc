@@ -48,7 +48,7 @@ $ sudo docker run ubuntu/workspace
 - docker run
 
 ```bash
-$ docker run -it -v ~/Desktop/repositories/compiler/scc:/workspace/ ubuntu/workspace
+$ docker run -it -v [host_path]:[container_path] ubuntu/workspace
 ```
 
 ## Experiment
