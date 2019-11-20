@@ -24,13 +24,19 @@
 
 ## Environment 
 
-- 64-bit Linux
+- docker(64-bit Linux)
 - gcc
 
 if you are using Ubuntu, run command below
 
 ```bash
 $ sudo apt install gcc make binutils libc6-dev
+```
+
+- docker run
+
+```
+docker run -it -v ~/Desktop/repositories/compiler/scc:/workspace/ ubuntu/workspace
 ```
 
 ## Experiment
