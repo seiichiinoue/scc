@@ -33,10 +33,22 @@ if you are using Ubuntu, run command below
 $ sudo apt install gcc make binutils libc6-dev
 ```
 
+- build docker image
+
+```bash
+$ sudo docker build -t ubuntu/workspace .
+```
+
+- create container
+
+```bash
+$ sudo docker run ubuntu/workspace
+```
+
 - docker run
 
-```
-docker run -it -v ~/Desktop/repositories/compiler/scc:/workspace/ ubuntu/workspace
+```bash
+$ docker run -it -v ~/Desktop/repositories/compiler/scc:/workspace/ ubuntu/workspace
 ```
 
 ## Experiment
