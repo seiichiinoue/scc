@@ -51,6 +51,13 @@ $ sudo docker run ubuntu/workspace
 $ docker run -it -v [host_path]:[container_path] ubuntu/workspace
 ```
 
+- start and enter container exist
+
+```bash
+$ docker start [container_id]
+$ docker exec -it [container_id] /bin/bash
+```
+
 ## Experiment
 
 - Compile Simple Code
